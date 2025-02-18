@@ -1,0 +1,44 @@
+services:
+  web:
+    build: .
+    volumes:
+      - ./:/usr/src/myapp
+    working_dir: /usr/src/myapp
+    command: php -S 0.0.0.0:8000
+    ports:
+      - "8000:8000"
+    networks:
+      - mynetwork
+
+  db:
+    build:
+      context: .
+      dockerfile: mysql-Dockerfile
+    environment:
+      - MYSQL_DATABASE=php-docker
+      - MYSQL_USER=php_docker
+      - MYSQL_PASSWORD=root
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_ROOT_HOST=%
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - mynetwork
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    ports:
+      - "8001:80"
+    environment:
+      - PMA_HOST=db
+      - PMA_PORT=3306
+    depends_on:
+      - db
+    networks:
+      - mynetwork
+
+networks:
+  mynetwork:
+
+volumes:
+  mysql-data:
